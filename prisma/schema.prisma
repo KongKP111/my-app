@@ -27,10 +27,12 @@ model Purchase {
 
 model Post {
   id        Int      @id @default(autoincrement())
-  title     String
-  content   String
+  gamename  String   // เพิ่ม field นี้
+  price     Float
+  imageUrl  String
   createdAt DateTime @default(now())
 }
+
 
 
 model Game {

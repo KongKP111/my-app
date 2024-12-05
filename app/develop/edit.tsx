@@ -3,68 +3,45 @@
 import { useState } from "react";
 
 interface EditProps {
-  game: { id: number; name: string; price: number; imageUrl: string };
-  onEdit: (updatedGame: { id: number; name: string; price: number; imageUrl: string }) => void;
-  onCancel: () => void;
+  id: number;
+  currentData: { name: string; price: number; imageUrl: string };
 }
 
-export default function EditGame({ game, onEdit, onCancel }: EditProps) {
-  const [editingGame, setEditingGame] = useState(game);
+export default function EditPost({ id, currentData }: EditProps) {
+  const [updatedPost, setUpdatedPost] = useState(currentData);
 
-  const handleSave = () => {
-    if (!editingGame.name || !editingGame.price || !editingGame.imageUrl) {
-      alert("กรุณากรอกข้อมูลให้ครบถ้วน");
-      return;
+  const handleEditPost = async () => {
+    const res = await fetch("/api/posts/edit", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, ...updatedPost }),
+    });
+
+    if (res.ok) {
+      alert("แก้ไขโพสต์สำเร็จ");
+    } else {
+      alert("เกิดข้อผิดพลาดในการแก้ไขโพสต์");
     }
-
-    onEdit(editingGame);
   };
 
   return (
-    <section>
-      <h2 className="text-2xl font-semibold mb-4">แก้ไขเกม</h2>
+    <div>
       <input
         type="text"
-        placeholder="ชื่อเกม"
-        value={editingGame.name}
-        onChange={(e) =>
-          setEditingGame({ ...editingGame, name: e.target.value })
-        }
-        className="block mb-2 p-2 border rounded"
+        value={updatedPost.name}
+        onChange={(e) => setUpdatedPost({ ...updatedPost, name: e.target.value })}
       />
       <input
         type="text"
-        placeholder="ราคา"
-        value={editingGame.price.toString()}
-        onChange={(e) =>
-          setEditingGame({
-            ...editingGame,
-            price: parseFloat(e.target.value),
-          })
-        }
-        className="block mb-2 p-2 border rounded"
+        value={updatedPost.price}
+        onChange={(e) => setUpdatedPost({ ...updatedPost, price: parseFloat(e.target.value) })}
       />
       <input
         type="text"
-        placeholder="URL รูปภาพ"
-        value={editingGame.imageUrl}
-        onChange={(e) =>
-          setEditingGame({ ...editingGame, imageUrl: e.target.value })
-        }
-        className="block mb-2 p-2 border rounded"
+        value={updatedPost.imageUrl}
+        onChange={(e) => setUpdatedPost({ ...updatedPost, imageUrl: e.target.value })}
       />
-      <button
-        onClick={handleSave}
-        className="bg-green-500 text-white py-2 px-4 rounded"
-      >
-        บันทึก
-      </button>
-      <button
-        onClick={onCancel}
-        className="bg-gray-500 text-white py-2 px-4 rounded ml-2"
-      >
-        ยกเลิก
-      </button>
-    </section>
+      <button onClick={handleEditPost}>บันทึก</button>
+    </div>
   );
 }

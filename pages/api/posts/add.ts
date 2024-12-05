@@ -3,12 +3,13 @@ import prisma from "../../../utils/db";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "POST") {
-    const { title, content } = req.body;
+    const { gamename, price, imageUrl } = req.body;
 
     const post = await prisma.post.create({
       data: {
-        title,
-        content,
+        gamename,
+        price: parseFloat(price),
+        imageUrl,
       },
     });
 

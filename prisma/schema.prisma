@@ -27,9 +27,9 @@ model Purchase {
 
 model Post {
   id        Int      @id @default(autoincrement())
-  gamename  String   @default("Unnamed Game") // เพิ่ม default value
-  price     Float    @default(0.0)           // เพิ่ม default value
-  imageUrl  String   @default("")            // เพิ่ม default value
+  gamename  String?  // Optional field
+  price     Float?   // Optional field
+  imageUrl  String?  // Optional field
   createdAt DateTime @default(now())
 }
 

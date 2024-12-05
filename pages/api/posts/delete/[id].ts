@@ -8,7 +8,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await prisma.post.delete({
       where: { id: Number(id) },
     });
-
     return res.status(204).end();
   }
   return res.status(405).json({ message: "Method not allowed." });

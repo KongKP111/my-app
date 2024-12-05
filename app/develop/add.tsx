@@ -2,61 +2,45 @@
 
 import { useState } from "react";
 
-interface AddProps {
-  onAdd: (game: { name: string; price: number; imageUrl: string }) => void;
-}
+export default function AddPost() {
+  const [newPost, setNewPost] = useState({ name: "", price: "", imageUrl: "" });
 
-export default function AddGame({ onAdd }: AddProps) {
-  const [newGame, setNewGame] = useState({ name: "", price: "", imageUrl: "" });
+  const handleAddPost = async () => {
+    const res = await fetch("/api/posts/add", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newPost),
+    });
 
-  const handleAdd = () => {
-    if (!newGame.name || !newGame.price || !newGame.imageUrl) {
-      alert("กรุณากรอกข้อมูลให้ครบถ้วน");
-      return;
+    if (res.ok) {
+      alert("เพิ่มโพสต์สำเร็จ");
+      setNewPost({ name: "", price: "", imageUrl: "" });
+    } else {
+      alert("เกิดข้อผิดพลาดในการเพิ่มโพสต์");
     }
-
-    const game = {
-      name: newGame.name,
-      price: parseFloat(newGame.price),
-      imageUrl: newGame.imageUrl,
-    };
-
-    onAdd(game);
-    setNewGame({ name: "", price: "", imageUrl: "" }); // รีเซ็ตฟอร์ม
   };
 
   return (
-    <section>
-      <h2 className="text-2xl font-semibold mb-4">เพิ่มเกมใหม่</h2>
+    <div>
       <input
         type="text"
         placeholder="ชื่อเกม"
-        value={newGame.name}
-        onChange={(e) => setNewGame({ ...newGame, name: e.target.value })}
-        className="block mb-2 p-2 border rounded"
+        value={newPost.name}
+        onChange={(e) => setNewPost({ ...newPost, name: e.target.value })}
       />
       <input
         type="text"
         placeholder="ราคา"
-        value={newGame.price}
-        onChange={(e) => setNewGame({ ...newGame, price: e.target.value })}
-        className="block mb-2 p-2 border rounded"
+        value={newPost.price}
+        onChange={(e) => setNewPost({ ...newPost, price: e.target.value })}
       />
       <input
         type="text"
         placeholder="URL รูปภาพ"
-        value={newGame.imageUrl}
-        onChange={(e) =>
-          setNewGame({ ...newGame, imageUrl: e.target.value })
-        }
-        className="block mb-2 p-2 border rounded"
+        value={newPost.imageUrl}
+        onChange={(e) => setNewPost({ ...newPost, imageUrl: e.target.value })}
       />
-      <button
-        onClick={handleAdd}
-        className="bg-blue-500 text-white py-2 px-4 rounded"
-      >
-        เพิ่มเกม
-      </button>
-    </section>
+      <button onClick={handleAddPost}>เพิ่มโพสต์</button>
+    </div>
   );
 }

@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import prisma from "../../../utils/db";
 
 async function ensureAdminUser() {
-  const adminEmail = "Admin1234@gmail.com";
+  const adminEmail = "Andmi1234@gmail.com";
   const adminPassword = "123456789";
 
   // Check if admin already exists

@@ -3,9 +3,9 @@
 import { useState } from "react";
 
 const images = [
-  "https://image.api.playstation.com/vulcan/ap/rnd/202207/2509/85p2Dwh5iDhUzRKe40QeNYh3.png",
-  "https://image.api.playstation.com/vulcan/img/rnd/202010/2217/p3pYq0QxntZQREXRVdAzmn1w.png",
-  "https://media.graphassets.com/hMpRcNy0RhyN3eCinBMb",
+  "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/349040/header_thai.jpg?t=1703080866",
+  "https://images.squarespace-cdn.com/content/v1/5fbc4a62c2150e62cfcb09aa/1662077989441-6V5D9YCJD018NAXP62M0/d20220518_TLOUX_SocialAssets_T1X_-Annouce_16x9.jpg?format=1000w",
+  "https://rukminim2.flixcart.com/image/850/1000/xif0q/code-in-the-box-game/q/e/d/pc-marvel-s-spider-man-remastered-edition-original-imaggg2zs7dhqsff.jpeg?q=90&crop=false",
 ];
 
 export default function Carousel() {

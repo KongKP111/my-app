@@ -73,19 +73,19 @@ export default function StorePage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-lg p-4 sticky top-0 z-50">
+    <main className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-purple-900 text-white">
+      <header className="bg-black/70 backdrop-blur-md shadow-2xl p-4 sticky top-0 z-50">
         <nav className="flex justify-between items-center container mx-auto">
           <div className="flex items-center space-x-6">
             <Link
               href="/store"
-              className="text-xl font-bold text-gray-800 hover:text-blue-500 transition duration-300"
+              className="text-xl font-bold text-white hover:text-purple-400 transition duration-300 ease-in-out"
             >
               Home
             </Link>
             <Link
               href="#"
-              className="text-lg text-gray-600 hover:text-blue-500 transition duration-300"
+              className="text-lg text-gray-300 hover:text-purple-300 transition duration-300 ease-in-out"
             >
               About Us
             </Link>
@@ -93,35 +93,38 @@ export default function StorePage() {
           <div className="flex items-center space-x-4">
             <Link
               href="/cart"
-              className="relative text-xl text-gray-800 hover:text-blue-500 transition duration-300"
+              className="relative text-xl text-white hover:text-purple-400 transition duration-300 ease-in-out"
             >
               🛒 Cart
               {cart.length > 0 && (
-                <span className="absolute top-0 right-0 text-sm bg-red-500 text-white rounded-full px-2 py-1">
+                <span className="absolute -top-2 -right-2 text-xs bg-purple-600 text-white rounded-full px-2 py-1 animate-pulse">
                   {cart.length}
                 </span>
               )}
             </Link>
             <div className="relative">
-              <button className="text-lg text-gray-800" onClick={toggleDropdown}>
+              <button 
+                className="text-lg text-white hover:text-purple-300 transition duration-300 ease-in-out" 
+                onClick={toggleDropdown}
+              >
                 Hello, {username}
               </button>
               {showDropdown && (
-                <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg p-4">
+                <div className="absolute right-0 mt-2 w-48 bg-gray-800 shadow-2xl rounded-lg p-4 border border-purple-800/50">
                   <Link
                     href="/library"
-                    className="block mb-2 text-sm text-gray-800 hover:text-blue-500"
+                    className="block mb-2 text-sm text-gray-200 hover:text-purple-300 transition duration-300 ease-in-out"
                   >
                     My Library
                   </Link>
                   <Link
                     href="/previous-purchases"
-                    className="block mb-2 text-sm text-gray-800 hover:text-blue-500"
+                    className="block mb-2 text-sm text-gray-200 hover:text-purple-300 transition duration-300 ease-in-out"
                   >
                     Previous Purchases
                   </Link>
                   <button
-                    className="w-full text-red-500 hover:text-red-700"
+                    className="w-full text-red-400 hover:text-red-600 text-left transition duration-300 ease-in-out"
                     onClick={handleLogout}
                   >
                     Logout
@@ -134,28 +137,37 @@ export default function StorePage() {
       </header>
 
       <section className="p-8">
-        <h1 className="text-4xl font-extrabold text-gray-900 mb-8 text-center">
-          Store
+        <h1 className="text-4xl font-extrabold text-white mb-8 text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-pink-500">
+          Game Store
         </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {games.map((game) => (
             <div
               key={game.id}
-              className="bg-white shadow-xl rounded-lg overflow-hidden transition-transform transform hover:scale-105"
+              className="bg-gray-800/70 backdrop-blur-sm shadow-2xl rounded-2xl overflow-hidden 
+              transition-all duration-500 ease-in-out transform 
+              hover:scale-105 hover:shadow-purple-900/50 hover:border-purple-700 
+              border border-transparent"
             >
-              <img
-                src={game.imageUrl}
-                alt={game.name}
-                className="w-full h-64 object-cover rounded-t-lg"
-              />
+              <div className="relative overflow-hidden">
+                <img
+                  src={game.imageUrl}
+                  alt={game.name}
+                  className="w-full h-64 object-cover transition-transform duration-500 ease-in-out group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+              </div>
               <div className="p-4">
-                <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                <h2 className="text-xl font-semibold text-white mb-2 truncate">
                   {game.name}
                 </h2>
-                <p className="text-lg text-gray-600 mb-4">Price: ${game.price}</p>
+                <p className="text-lg text-purple-300 mb-4">Price: ${game.price}</p>
                 <button
-                  className="w-full bg-blue-600 text-white py-2 rounded-lg text-lg hover:bg-blue-700 transition duration-200"
+                  className="w-full bg-purple-700 text-white py-2 rounded-lg text-lg 
+                  hover:bg-purple-600 transition duration-300 ease-in-out 
+                  transform active:scale-95 focus:outline-none 
+                  focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50"
                   onClick={() => addToCart(game)}
                 >
                   Add to Cart

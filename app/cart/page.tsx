@@ -58,73 +58,75 @@ export default function CartPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 p-8">
-      <h1 className="text-4xl font-extrabold text-gray-900 mb-8">Cart</h1>
+    <main className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-purple-900 text-white p-8">
+      <h1 className="text-4xl font-extrabold text-white mb-8 bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-pink-500">
+        Cart
+      </h1>
       {cart.length === 0 ? (
-        <p>Your cart is empty.</p>
+        <p className="text-gray-300">Your cart is empty.</p>
       ) : (
         <div>
           <ul className="space-y-4">
             {cart.map((game) => (
-              <li key={game.id} className="flex justify-between items-center bg-white shadow-md p-4 rounded-lg">
+              <li 
+                key={game.id} 
+                className="flex justify-between items-center bg-gray-800/70 backdrop-blur-sm shadow-2xl p-4 rounded-lg border border-purple-800/30"
+              >
                 <div className="flex items-center space-x-4">
                   <img
                     src={game.imageUrl}
                     alt={game.name}
-                    className="w-16 h-16 object-cover rounded-md"
+                    className="w-16 h-16 object-cover rounded-md border-2 border-purple-600/50"
                   />
                   <div>
-                    <p className="font-semibold text-lg">{game.name}</p>
+                    <p className="font-semibold text-lg text-white">{game.name}</p>
                     {game.quantity > 1 && (
-                      <p className="text-sm text-gray-500">Quantity: x{game.quantity}</p>
+                      <p className="text-sm text-purple-300">Quantity: x{game.quantity}</p>
                     )}
                   </div>
                 </div>
-                <p className="text-lg font-semibold">
+                <p className="text-lg font-semibold text-purple-300">
                   ${(game.price * (game.quantity || 1)).toFixed(2)}
                 </p>
               </li>
             ))}
           </ul>
-          <h2 className="text-xl font-bold mt-8">Total: ${totalPrice.toFixed(2)}</h2>
+          <h2 className="text-xl font-bold mt-8 text-white">
+            Total: <span className="text-purple-400">${totalPrice.toFixed(2)}</span>
+          </h2>
 
-          <h3 className="text-lg font-semibold mt-6">Select Payment Method</h3>
+          <h3 className="text-lg font-semibold mt-6 text-white">Select Payment Method</h3>
           <div className="mt-4 flex gap-4">
-            <button
-              onClick={() => handlePaymentSelection("PromptPay")}
-              className={`py-2 px-4 rounded ${
-                selectedPaymentMethod === "PromptPay"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200 hover:bg-gray-300"
-              }`}
-            >
-              PromptPay
-            </button>
-            <button
-              onClick={() => handlePaymentSelection("PayPal")}
-              className={`py-2 px-4 rounded ${
-                selectedPaymentMethod === "PayPal"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200 hover:bg-gray-300"
-              }`}
-            >
-              PayPal
-            </button>
-            <button
-              onClick={() => handlePaymentSelection("TrueMoney")}
-              className={`py-2 px-4 rounded ${
-                selectedPaymentMethod === "TrueMoney"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200 hover:bg-gray-300"
-              }`}
-            >
-              TrueMoney
-            </button>
+            {["PromptPay", "PayPal", "TrueMoney"].map((method) => (
+              <button
+                key={method}
+                onClick={() => handlePaymentSelection(method)}
+                className={`
+                  py-2 px-4 rounded-lg text-white font-semibold transition duration-300 ease-in-out
+                  ${
+                    selectedPaymentMethod === method
+                      ? "bg-purple-700 hover:bg-purple-600 ring-2 ring-pink-500"
+                      : "bg-gray-700 hover:bg-gray-600 hover:text-purple-300"
+                  }
+                  transform active:scale-95 focus:outline-none 
+                  focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50
+                `}
+              >
+                {method}
+              </button>
+            ))}
           </div>
 
           <button
             onClick={handleCheckout}
-            className="mt-6 bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition"
+            className="
+              mt-6 w-full py-3 rounded-lg text-white font-bold text-lg
+              bg-gradient-to-r from-green-600 to-green-800
+              hover:from-green-700 hover:to-green-900
+              transition duration-300 ease-in-out
+              transform hover:scale-[1.02] active:scale-95
+              focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50
+            "
           >
             Finish Payment
           </button>

@@ -30,33 +30,34 @@ export default function DeveloperPage() {
   };
 
   // Add a new game
-  const handleAdd = async () => {
+  const handleAddGame = async () => {
     try {
-      const response = await fetch('/api/games/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.name,
-          price: parseFloat(formData.price),
-          imageUrl: formData.imageUrl,
-        }),
-      });
-  
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`Add Game Error: ${response.status} - ${errorText}`);
-        alert('Failed to add game. Check console for details.');
-        return;
-      }
-  
-      const newGame = await response.json();
-      setGames((prev) => [...prev, newGame]);
-      setFormData({ id: '', name: '', price: '', imageUrl: '' });
+        const response = await fetch('/api/add-game', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: 'New Game',
+                price: 29.99,
+            }),
+        });
+
+        if (!response.ok) {
+            // Log the error response for debugging
+            const errorData = await response.json();
+            console.error('Error response:', errorData);
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Game added successfully:', data);
     } catch (error) {
-      console.error('Unexpected Add Game Error:', error);
-      alert('An unexpected error occurred while adding the game.');
+        console.error('Failed to add game:', error);
     }
-  };
+};
+
+  
   
   
   
@@ -147,7 +148,7 @@ export default function DeveloperPage() {
           className="border p-2 mr-2"
         />
         <button
-          onClick={formData.id ? handleEdit : handleAdd}
+          onClick={formData.id ? handleEdit : handleAddGame}
           className={`p-2 text-white ${
             formData.id ? 'bg-green-500' : 'bg-blue-500'
           }`}

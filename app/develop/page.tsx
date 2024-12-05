@@ -1,7 +1,8 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 
+// Define the type for a game
 interface Game {
   id: number;
   name: string;
@@ -9,148 +10,191 @@ interface Game {
   imageUrl: string;
 }
 
-export default function DevelopPage() {
-  const [games, setGames] = useState<Game[]>([]);
-  const [newGame, setNewGame] = useState({ name: "", price: 0, imageUrl: "" });
-  const [editingGame, setEditingGame] = useState<Game | null>(null);
+export default function DeveloperPage() {
+  const [formData, setFormData] = useState({ id: '', name: '', price: '', imageUrl: '' });
+  const [games, setGames] = useState<Game[]>([]); // Define the type for `games`
 
-  // Fetch games on mount
   useEffect(() => {
     fetchGames();
   }, []);
 
+  // Fetch all games
   const fetchGames = async () => {
     try {
-      const res = await fetch("/api/games");
-      if (res.ok) {
-        const data = await res.json();
-        setGames(data);
-      }
+      const res = await fetch('/api/games');
+      const data: Game[] = await res.json();
+      setGames(data);
     } catch (error) {
-      console.error("Error fetching games:", error);
+      console.error('Failed to fetch games:', error);
     }
   };
 
+  // Add a new game
   const handleAdd = async () => {
     try {
-      const res = await fetch("/api/games", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newGame),
+      const response = await fetch('/api/games/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          price: parseFloat(formData.price),
+          imageUrl: formData.imageUrl,
+        }),
       });
-      if (res.ok) {
-        fetchGames();
-        setNewGame({ name: "", price: 0, imageUrl: "" });
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`Add Game Error: ${response.status} - ${errorText}`);
+        alert('Failed to add game. Check console for details.');
+        return;
       }
+  
+      const newGame = await response.json();
+      setGames((prev) => [...prev, newGame]);
+      setFormData({ id: '', name: '', price: '', imageUrl: '' });
     } catch (error) {
-      console.error("Error adding game:", error);
+      console.error('Unexpected Add Game Error:', error);
+      alert('An unexpected error occurred while adding the game.');
     }
   };
+  
+  
+  
 
+  // Edit an existing game
   const handleEdit = async () => {
-    if (!editingGame) return;
     try {
-      const res = await fetch("/api/games", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(editingGame),
+      const response = await fetch('/api/games/edit', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: parseInt(formData.id),
+          name: formData.name,
+          price: parseFloat(formData.price),
+          imageUrl: formData.imageUrl,
+        }),
       });
-      if (res.ok) {
-        fetchGames();
-        setEditingGame(null);
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`Edit Game Error: ${response.status} - ${errorText}`);
+        alert('Failed to edit game. Check console for details.');
+        return;
       }
+  
+      const updatedGame = await response.json();
+      setGames((prev) =>
+        prev.map((game) => (game.id === updatedGame.id ? updatedGame : game))
+      );
+      setFormData({ id: '', name: '', price: '', imageUrl: '' });
     } catch (error) {
-      console.error("Error editing game:", error);
+      console.error('Unexpected Edit Game Error:', error);
+      alert('An unexpected error occurred while editing the game.');
     }
   };
+  
+  
 
+  // Delete a game
   const handleDelete = async (id: number) => {
     try {
-      const res = await fetch(`/api/games?id=${id}`, {
-        method: "DELETE",
+      const response = await fetch('/api/games/delete', { // ตรวจสอบ URL ว่าตรงกับ API
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }), // ส่ง ID ไปยัง API
       });
-      if (res.ok) {
-        fetchGames();
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`Delete Game Error: ${response.status} - ${errorText}`);
+        alert('Failed to delete game. Check console for details.');
+        return;
       }
+  
+      setGames((prev) => prev.filter((game) => game.id !== id));
     } catch (error) {
-      console.error("Error deleting game:", error);
+      console.error('Unexpected Delete Game Error:', error);
+      alert('An unexpected error occurred while deleting the game.');
     }
   };
+  
+  
+  
 
   return (
     <div className="p-4">
-      <h1>Develop Page</h1>
-
-      {/* Add New Game */}
-      <div>
-        <h2>Add New Game</h2>
+      <h1 className="text-2xl font-bold mb-4">Developer Page</h1>
+      <div className="mb-4">
         <input
           type="text"
           placeholder="Game Name"
-          value={newGame.name}
-          onChange={(e) => setNewGame({ ...newGame, name: e.target.value })}
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          className="border p-2 mr-2"
         />
         <input
           type="number"
           placeholder="Price"
-          value={newGame.price}
-          onChange={(e) => setNewGame({ ...newGame, price: Number(e.target.value) })}
+          value={formData.price}
+          onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+          className="border p-2 mr-2"
         />
         <input
           type="text"
           placeholder="Image URL"
-          value={newGame.imageUrl}
-          onChange={(e) => setNewGame({ ...newGame, imageUrl: e.target.value })}
+          value={formData.imageUrl}
+          onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+          className="border p-2 mr-2"
         />
-        <button onClick={handleAdd}>Add Game</button>
+        <button
+          onClick={formData.id ? handleEdit : handleAdd}
+          className={`p-2 text-white ${
+            formData.id ? 'bg-green-500' : 'bg-blue-500'
+          }`}
+        >
+          {formData.id ? 'Edit Game' : 'Add Game'}
+        </button>
       </div>
-
-      {/* Edit Game */}
-      {editingGame && (
-        <div>
-          <h2>Edit Game</h2>
-          <input
-            type="text"
-            placeholder="Game Name"
-            value={editingGame.name}
-            onChange={(e) =>
-              setEditingGame({ ...editingGame, name: e.target.value })
-            }
-          />
-          <input
-            type="number"
-            placeholder="Price"
-            value={editingGame.price}
-            onChange={(e) =>
-              setEditingGame({ ...editingGame, price: Number(e.target.value) })
-            }
-          />
-          <input
-            type="text"
-            placeholder="Image URL"
-            value={editingGame.imageUrl}
-            onChange={(e) =>
-              setEditingGame({ ...editingGame, imageUrl: e.target.value })
-            }
-          />
-          <button onClick={handleEdit}>Save Changes</button>
-          <button onClick={() => setEditingGame(null)}>Cancel</button>
-        </div>
-      )}
-
-      {/* Games List */}
-      <div>
-        <h2>Games List</h2>
-        {games.map((game) => (
-          <div key={game.id}>
-            <p>Name: {game.name}</p>
-            <p>Price: {game.price}</p>
-            <img src={game.imageUrl} alt={game.name} width={100} />
-            <button onClick={() => setEditingGame(game)}>Edit</button>
-            <button onClick={() => handleDelete(game.id)}>Delete</button>
-          </div>
-        ))}
-      </div>
+      <table className="w-full border-collapse border border-gray-300">
+        <thead>
+          <tr>
+            <th className="border border-gray-300 p-2">ID</th>
+            <th className="border border-gray-300 p-2">Name</th>
+            <th className="border border-gray-300 p-2">Price</th>
+            <th className="border border-gray-300 p-2">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {games.map((game) => (
+            <tr key={game.id}>
+              <td className="border border-gray-300 p-2">{game.id}</td>
+              <td className="border border-gray-300 p-2">{game.name}</td>
+              <td className="border border-gray-300 p-2">${game.price}</td>
+              <td className="border border-gray-300 p-2">
+                <button
+                  onClick={() =>
+                    setFormData({
+                      id: game.id.toString(),
+                      name: game.name,
+                      price: game.price.toString(),
+                      imageUrl: game.imageUrl,
+                    })
+                  }
+                  className="bg-yellow-500 text-white p-2 mr-2"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(game.id)}
+                  className="bg-red-500 text-white p-2"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

@@ -1,26 +1,35 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import prisma from "../../../utils/db";
+import { NextApiRequest, NextApiResponse } from 'next';
+import { prisma } from '@/lib/prisma';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === "PUT") {
+  if (req.method === 'PUT') {
     try {
-      const { id, gamename, price, imageUrl } = req.body;
+      const { id, name, price, imageUrl } = req.body;
 
-      if (!id || !gamename || !price || !imageUrl) {
-        return res.status(400).json({ message: "Missing required fields." });
+      // Validate required fields
+      if (!id || !name || !price || !imageUrl) {
+        return res.status(400).json({ error: 'All fields are required: id, name, price, imageUrl.' });
       }
 
       const updatedGame = await prisma.game.update({
-        where: { id: parseInt(id) },
-        data: { gamename, price: parseFloat(price), imageUrl },
+        where: { id },
+        data: {
+          name,
+          price: parseFloat(price),
+          imageUrl,
+        },
       });
 
-      return res.status(200).json(updatedGame);
-    } catch (error) {
-      console.error("Error updating game:", error);
-      return res.status(500).json({ message: "Internal server error." });
+      res.status(200).json(updatedGame);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Error editing game:', error.message);
+        res.status(500).json({ error: 'Failed to edit game.', details: error.message });
+      } else {
+        res.status(500).json({ error: 'Unknown error occurred.' });
+      }
     }
   } else {
-    return res.status(405).json({ message: "Method not allowed." });
+    res.status(405).json({ error: 'Method not allowed.' });
   }
 }

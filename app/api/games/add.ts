@@ -1,34 +1,34 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
+import { NextApiRequest, NextApiResponse } from 'next';
+import { prisma } from '@/lib/prisma';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === "POST") {
-    const { gamename, price, imageUrl } = req.body;  // Changed 'name' to 'gamename'
-
-    if (!gamename || !price || !imageUrl) {
-      return res.status(400).json({ message: "Missing required fields" });
-    }
-
+  if (req.method === 'POST') {
     try {
-      // Create a new game in the database
+      const { name, price, imageUrl } = req.body;
+
+      // ตรวจสอบว่าฟิลด์ครบหรือไม่
+      if (!name || !price || !imageUrl) {
+        return res.status(400).json({ error: 'All fields are required: name, price, imageUrl.' });
+      }
+
       const newGame = await prisma.game.create({
         data: {
-          gamename, // Use the correct field name
-          price,
+          name, // ใช้ 'name' ตาม Schema
+          price: parseFloat(price),
           imageUrl,
         },
       });
-      
-      
 
-      // Send back the created game
-      res.status(201).json(newGame);
-    } catch (error) {
-      console.error("Error creating game:", error);
-      res.status(500).json({ message: "Failed to create game" });
+      res.status(200).json(newGame);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Error adding game:', error.message);
+        res.status(500).json({ error: 'Failed to add game.', details: error.message });
+      } else {
+        res.status(500).json({ error: 'Unknown error occurred.' });
+      }
     }
   } else {
-    res.status(405).json({ message: "Method Not Allowed" });
+    res.status(405).json({ error: 'Method not allowed.' });
   }
 }

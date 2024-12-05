@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 export default function AdminPage() {
   const router = useRouter();
-  // PPPPPPPP
+  // PPPPPPPP???S
 
   useEffect(() => {
     const role = localStorage.getItem("role");

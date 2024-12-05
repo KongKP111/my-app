@@ -33,10 +33,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { email, password } = req.body;
 
     try {
-      // Ensure predefined admin user exists
-      await ensureAdminUser();
-
-      // Fetch user by email
       const user = await prisma.user.findUnique({ where: { email } });
 
       if (!user || !(await bcrypt.compare(password, user.password))) {
@@ -56,3 +52,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.status(405).json({ message: "Method not allowed." });
   }
 }
+

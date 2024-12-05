@@ -19,51 +19,44 @@ export default function LoginPage() {
       if (res.ok) {
         const data = await res.json();
 
-        // เก็บข้อมูลลงใน localStorage
+        // Save user details in localStorage for later use
         localStorage.setItem("username", data.username);
         localStorage.setItem("email", data.email);
         localStorage.setItem("role", data.role);
 
-        // พาผู้ใช้ไปยังหน้าที่กำหนดตาม role
-        if (data.email === "Admin1234@gmail.com") {
+        // Redirect based on role
+        if (data.role === "admin") {
+          console.log("Redirecting to Admin Page...");
           router.push("/admin");
         } else {
           router.push("/store");
         }
+        
       } else {
-        alert("เข้าสู่ระบบล้มเหลว กรุณาตรวจสอบข้อมูลของคุณ");
+        alert("Invalid credentials. Please try again.");
       }
     } catch (error) {
       console.error("Login error:", error);
-      alert("เกิดข้อผิดพลาดในการเข้าสู่ระบบ");
+      alert("An unexpected error occurred.");
     }
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="p-8 bg-white shadow-md rounded-md">
-        <h1 className="text-2xl mb-4">Login</h1>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="border p-2 w-full mb-4"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="border p-2 w-full mb-4"
-        />
-        <button
-          onClick={handleLogin}
-          className="w-full bg-blue-500 text-white py-2 rounded"
-        >
-          Login
-        </button>
-      </div>
-    </main>
+    <div className="login-page">
+      <h1>Login</h1>
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <button onClick={handleLogin}>Login</button>
+    </div>
   );
 }

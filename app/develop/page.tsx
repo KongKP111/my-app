@@ -1,6 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+interface Post {
+  id: number;
+  title: string;
+  content: string;
+}
 
 interface Game {
   id: number;
@@ -9,167 +15,128 @@ interface Game {
   imageUrl: string;
 }
 
-export default function DevelopPage() {
-  const [games, setGames] = useState<Game[]>([]); // รายการเกม
-  const [newGame, setNewGame] = useState({ name: "", price: "", imageUrl: "" }); // เพิ่มเกมใหม่
-  const [editingGame, setEditingGame] = useState<Game | null>(null); // เกมที่แก้ไข
+export default function AdminPage() {
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [games, setGames] = useState<Game[]>([]);
+  const [newPost, setNewPost] = useState({ title: "", content: "" });
+  const [newGame, setNewGame] = useState({ name: "", price: 0, imageUrl: "" });
 
-  // ฟังก์ชันเพิ่มเกมใหม่
-  const handleAddGame = () => {
-    if (!newGame.name || !newGame.price || !newGame.imageUrl) {
-      alert("กรุณากรอกข้อมูลให้ครบถ้วน");
-      return;
-    }
-
-    const id = games.length ? games[games.length - 1].id + 1 : 1; // สร้าง ID ใหม่
-    const game: Game = {
-      id,
-      name: newGame.name,
-      price: parseFloat(newGame.price),
-      imageUrl: newGame.imageUrl,
+  useEffect(() => {
+    const fetchPosts = async () => {
+      const res = await fetch("/api/develop/api/newpost");
+      const data = await res.json();
+      setPosts(data);
     };
+    fetchPosts();
 
-    setGames([...games, game]); // เพิ่มเกมใหม่ลงในรายการ
-    setNewGame({ name: "", price: "", imageUrl: "" }); // รีเซ็ตฟอร์ม
-    alert("เพิ่มเกมสำเร็จ");
+    const fetchGames = async () => {
+      const res = await fetch("/api/games");
+      const data = await res.json();
+      setGames(data);
+    };
+    fetchGames();
+  }, []);
+
+  const handleNewPost = async () => {
+    const res = await fetch("/api/develop/api/newpost", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newPost),
+    });
+    if (res.ok) {
+      const post = await res.json();
+      setPosts([...posts, post]);
+    }
   };
 
-  // ฟังก์ชันแก้ไขเกม
-  const handleEditGame = () => {
-    if (!editingGame) return;
-
-    setGames(
-      games.map((game) =>
-        game.id === editingGame.id ? editingGame : game
-      )
-    );
-
-    setEditingGame(null); // ยกเลิกการแก้ไข
-    alert("แก้ไขเกมสำเร็จ");
+  const handleDeletePost = async (id: number) => {
+    await fetch(`/api/develop/api/deletepost?id=${id}`, { method: "DELETE" });
+    setPosts(posts.filter((post) => post.id !== id));
   };
 
-  // ฟังก์ชันลบเกม
-  const handleDeleteGame = (id: number) => {
-    if (confirm("คุณแน่ใจหรือไม่ว่าต้องการลบเกมนี้?")) {
-      setGames(games.filter((game) => game.id !== id));
-      alert("ลบเกมสำเร็จ");
+  const handleEditPost = async (id: number, title: string, content: string) => {
+    const res = await fetch("/api/develop/api/editpost", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, title, content }),
+    });
+    if (res.ok) {
+      const updatedPost = await res.json();
+      setPosts(posts.map((post) => (post.id === id ? updatedPost : post)));
     }
   };
 
   return (
-    <main className="p-8">
-      <h1 className="text-4xl font-bold mb-4">จัดการเกม</h1>
-
-      {/* ฟอร์มเพิ่มเกม */}
-      <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">เพิ่มเกมใหม่</h2>
-        <input
-          type="text"
-          placeholder="ชื่อเกม"
-          value={newGame.name}
-          onChange={(e) => setNewGame({ ...newGame, name: e.target.value })}
-          className="block mb-2 p-2 border rounded"
-        />
-        <input
-          type="text"
-          placeholder="ราคา"
-          value={newGame.price}
-          onChange={(e) => setNewGame({ ...newGame, price: e.target.value })}
-          className="block mb-2 p-2 border rounded"
-        />
-        <input
-          type="text"
-          placeholder="URL รูปภาพ"
-          value={newGame.imageUrl}
-          onChange={(e) => setNewGame({ ...newGame, imageUrl: e.target.value })}
-          className="block mb-2 p-2 border rounded"
-        />
-        <button
-          onClick={handleAddGame}
-          className="bg-blue-500 text-white py-2 px-4 rounded"
-        >
-          เพิ่มเกม
-        </button>
-      </section>
-
-      {/* ฟอร์มแก้ไขเกม */}
-      {editingGame && (
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">แก้ไขเกม</h2>
-          <input
-            type="text"
-            placeholder="ชื่อเกม"
-            value={editingGame.name}
-            onChange={(e) =>
-              setEditingGame({ ...editingGame, name: e.target.value })
-            }
-            className="block mb-2 p-2 border rounded"
-          />
-          <input
-            type="text"
-            placeholder="ราคา"
-            value={editingGame.price.toString()}
-            onChange={(e) =>
-              setEditingGame({
-                ...editingGame,
-                price: parseFloat(e.target.value),
-              })
-            }
-            className="block mb-2 p-2 border rounded"
-          />
-          <input
-            type="text"
-            placeholder="URL รูปภาพ"
-            value={editingGame.imageUrl}
-            onChange={(e) =>
-              setEditingGame({ ...editingGame, imageUrl: e.target.value })
-            }
-            className="block mb-2 p-2 border rounded"
-          />
-          <button
-            onClick={handleEditGame}
-            className="bg-green-500 text-white py-2 px-4 rounded"
-          >
-            บันทึก
-          </button>
-          <button
-            onClick={() => setEditingGame(null)}
-            className="bg-gray-500 text-white py-2 px-4 rounded ml-2"
-          >
-            ยกเลิก
-          </button>
-        </section>
-      )}
-
-      {/* รายการเกม */}
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
       <section>
-        <h2 className="text-2xl font-semibold mb-4">เกมทั้งหมด</h2>
-        <ul>
-          {games.map((game) => (
-            <li key={game.id} className="mb-4 p-4 border rounded shadow">
-              <h3 className="text-xl font-bold">{game.name}</h3>
-              <p>ราคา: {game.price}</p>
-              <img
-                src={game.imageUrl}
-                alt={game.name}
-                className="w-32 h-32 object-cover my-2"
-              />
-              <button
-                onClick={() => setEditingGame(game)}
-                className="bg-yellow-500 text-white py-1 px-2 rounded mr-2"
-              >
-                แก้ไข
+        <h2 className="text-xl font-semibold mb-2">Manage Posts</h2>
+        <div>
+          <input
+            type="text"
+            placeholder="Title"
+            value={newPost.title}
+            onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
+            className="border p-2 mr-2"
+          />
+          <textarea
+            placeholder="Content"
+            value={newPost.content}
+            onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
+            className="border p-2 mr-2"
+          />
+          <button onClick={handleNewPost} className="bg-blue-500 text-white px-4 py-2">
+            Add Post
+          </button>
+        </div>
+        <ul className="mt-4">
+          {posts.map((post) => (
+            <li key={post.id} className="border p-2 mb-2">
+              <h3 className="font-bold">{post.title}</h3>
+              <p>{post.content}</p>
+              <button onClick={() => handleDeletePost(post.id)} className="text-red-500">
+                Delete
               </button>
               <button
-                onClick={() => handleDeleteGame(game.id)}
-                className="bg-red-500 text-white py-1 px-2 rounded"
+                onClick={() =>
+                  handleEditPost(post.id, prompt("New Title") || "", prompt("New Content") || "")
+                }
+                className="text-blue-500 ml-2"
               >
-                ลบ
+                Edit
               </button>
             </li>
           ))}
         </ul>
       </section>
-    </main>
+
+      <section className="mt-6">
+        <h2 className="text-xl font-semibold mb-2">Manage Games</h2>
+        <div>
+          <input
+            type="text"
+            placeholder="Game Name"
+            value={newGame.name}
+            onChange={(e) => setNewGame({ ...newGame, name: e.target.value })}
+            className="border p-2 mr-2"
+          />
+          <input
+            type="number"
+            placeholder="Price"
+            value={newGame.price}
+            onChange={(e) => setNewGame({ ...newGame, price: parseFloat(e.target.value) })}
+            className="border p-2 mr-2"
+          />
+          <input
+            type="text"
+            placeholder="Image URL"
+            value={newGame.imageUrl}
+            onChange={(e) => setNewGame({ ...newGame, imageUrl: e.target.value })}
+            className="border p-2 mr-2"
+          />
+          <button className="bg-blue-500 text-white px-4 py-2">Add Game</button>
+        </div>
+      </section>
+    </div>
   );
 }

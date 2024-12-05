@@ -27,6 +27,8 @@ model Purchase {
 
 model Post {
   id        Int      @id @default(autoincrement())
+  title     String
+  content   String
   gamename  String?  // Optional field
   price     Float?   // Optional field
   imageUrl  String?  // Optional field

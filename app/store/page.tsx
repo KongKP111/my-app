@@ -14,7 +14,7 @@ export default function StorePage() {
   const [games, setGames] = useState<Game[]>([]);
   const [cart, setCart] = useState<Game[]>([]);
   const [username, setUsername] = useState<string>("Guest");
-  const [showDropdown, setShowDropdown] = useState<boolean>(false); // Properly declared
+  const [showDropdown, setShowDropdown] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchGames = async () => {

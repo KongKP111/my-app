@@ -25,26 +25,19 @@ model Purchase {
   quantity Int
 }
 
-model Post {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String
-  gamename  String?  // Optional field
-  price     Float?   // Optional field
-  imageUrl  String?  // Optional field
-  createdAt DateTime @default(now())
-}
-
-
-
 model Game {
-  id       Int      @id @default(autoincrement())
-  name     String
+  id       Int    @id @default(autoincrement())
+  gamename String
   price    Float
   imageUrl String
-  createdAt DateTime @default(now())
 }
 
+model Game {
+  id       Int    @id @default(autoincrement())
+  gamename String
+  price    Float
+  imageUrl String
+}
 
 model CartItem {
   id     Int  @id @default(autoincrement())

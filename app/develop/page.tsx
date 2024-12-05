@@ -1,9 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import AddGame from "./add";
-import EditGame from "./edit";
-import DeleteGame from "./delete";
+import { useState, useEffect } from "react";
 
 interface Game {
   id: number;
@@ -14,54 +11,119 @@ interface Game {
 
 export default function DevelopPage() {
   const [games, setGames] = useState<Game[]>([]);
+  const [newGame, setNewGame] = useState({ name: "", price: 0, imageUrl: "" });
   const [editingGame, setEditingGame] = useState<Game | null>(null);
 
-  const handleAdd = (game: { name: string; price: number; imageUrl: string }) => {
-    const id = games.length ? games[games.length - 1].id + 1 : 1;
-    setGames([...games, { id, ...game }]);
+  useEffect(() => {
+    fetchGames();
+  }, []);
+
+  const fetchGames = async () => {
+    const res = await fetch("/api/games");
+    const data = await res.json();
+    setGames(data);
   };
 
-  const handleEdit = (updatedGame: Game) => {
-    setGames(games.map((game) => (game.id === updatedGame.id ? updatedGame : game)));
-    setEditingGame(null);
+  const handleAdd = async () => {
+    const res = await fetch("/api/games/add", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newGame),
+    });
+
+    if (res.ok) {
+      fetchGames();
+      setNewGame({ name: "", price: 0, imageUrl: "" });
+    }
   };
 
-  const handleDelete = (id: number) => {
-    setGames(games.filter((game) => game.id !== id));
+  const handleEdit = async () => {
+    if (!editingGame) return;
+
+    const res = await fetch("/api/games/edit", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(editingGame),
+    });
+
+    if (res.ok) {
+      fetchGames();
+      setEditingGame(null);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    const res = await fetch(`/api/games/delete?id=${id}`, {
+      method: "DELETE",
+    });
+
+    if (res.ok) fetchGames();
   };
 
   return (
-    <main className="p-8">
-      <h1 className="text-4xl font-bold mb-4">จัดการเกม</h1>
+    <div className="p-4">
+      <h1>Develop Page</h1>
 
-      {!editingGame && <AddGame onAdd={handleAdd} />}
-      {editingGame && (
-        <EditGame
-          game={editingGame}
-          onEdit={handleEdit}
-          onCancel={() => setEditingGame(null)}
+      {/* Add New Game */}
+      <div>
+        <h2>Add New Game</h2>
+        <input
+          type="text"
+          placeholder="Game Name"
+          value={newGame.name}
+          onChange={(e) => setNewGame({ ...newGame, name: e.target.value })}
         />
+        <input
+          type="number"
+          placeholder="Price"
+          value={newGame.price}
+          onChange={(e) => setNewGame({ ...newGame, price: Number(e.target.value) })}
+        />
+        <input
+          type="text"
+          placeholder="Image URL"
+          value={newGame.imageUrl}
+          onChange={(e) => setNewGame({ ...newGame, imageUrl: e.target.value })}
+        />
+        <button onClick={handleAdd}>Add</button>
+      </div>
+
+      {/* Game List */}
+      <div>
+        <h2>Games</h2>
+        {games.map((game) => (
+          <div key={game.id}>
+            <h3>{game.name}</h3>
+            <p>{game.price}</p>
+            <img src={game.imageUrl} alt={game.name} />
+            <button onClick={() => setEditingGame(game)}>Edit</button>
+            <button onClick={() => handleDelete(game.id)}>Delete</button>
+          </div>
+        ))}
+      </div>
+
+      {/* Edit Game */}
+      {editingGame && (
+        <div>
+          <h2>Edit Game</h2>
+          <input
+            type="text"
+            value={editingGame.name}
+            onChange={(e) => setEditingGame({ ...editingGame, name: e.target.value })}
+          />
+          <input
+            type="number"
+            value={editingGame.price}
+            onChange={(e) => setEditingGame({ ...editingGame, price: Number(e.target.value) })}
+          />
+          <input
+            type="text"
+            value={editingGame.imageUrl}
+            onChange={(e) => setEditingGame({ ...editingGame, imageUrl: e.target.value })}
+          />
+          <button onClick={handleEdit}>Save</button>
+        </div>
       )}
-
-      <section>
-        <h2 className="text-2xl font-semibold mb-4">เกมทั้งหมด</h2><ul>
-  {games.map((game) => (
-    <li key={game.id} className="mb-4 p-4 border rounded shadow">
-      <h3 className="text-xl font-bold">{game.name}</h3>
-      <p>ราคา: {game.price}</p>
-      <img src={game.imageUrl} alt={game.name} className="w-32 h-32 object-cover my-2" />
-      <button
-        onClick={() => setEditingGame(game)}
-        className="bg-yellow-500 text-white py-1 px-2 rounded mr-2"
-      >
-        แก้ไข
-      </button>
-      <DeleteGame onDelete={handleDelete} id={game.id} /> {/* ส่ง id ของเกม */}
-    </li>
-  ))}
-</ul>
-
-      </section>
-    </main>
+    </div>
   );
 }

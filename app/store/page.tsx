@@ -16,12 +16,21 @@ export default function StorePage() {
   const [username, setUsername] = useState<string>("Guest");
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
 
+  // Fetch games and load cart and username from localStorage
   useEffect(() => {
     const fetchGames = async () => {
-      const res = await fetch("/api/games");
-      const data: Game[] = await res.json();
-      setGames(data);
+      try {
+        const res = await fetch("/api/games");
+        if (!res.ok) {
+          throw new Error("Failed to fetch games");
+        }
+        const data: Game[] = await res.json();
+        setGames(data);
+      } catch (error) {
+        console.error("Error fetching games:", error);
+      }
     };
+
     fetchGames();
 
     const savedCart = JSON.parse(localStorage.getItem("cart") || "[]");
@@ -33,21 +42,23 @@ export default function StorePage() {
     }
   }, []);
 
+  // Save cart to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
+  // Add a game to the cart
   const addToCart = (game: Game) => {
     setCart((prevCart) => {
-      const newCart = [...prevCart];
-      const gameExists = newCart.some((item) => item.id === game.id);
+      const gameExists = prevCart.some((item) => item.id === game.id);
       if (!gameExists) {
-        newCart.push(game);
+        return [...prevCart, game];
       }
-      return newCart;
+      return prevCart;
     });
   };
 
+  // Handle user logout
   const handleLogout = () => {
     setCart([]);
     localStorage.removeItem("cart");
@@ -56,6 +67,7 @@ export default function StorePage() {
     window.location.href = "/";
   };
 
+  // Toggle dropdown visibility
   const toggleDropdown = () => {
     setShowDropdown((prev) => !prev);
   };
@@ -65,18 +77,29 @@ export default function StorePage() {
       <header className="bg-white shadow-lg p-4 sticky top-0 z-50">
         <nav className="flex justify-between items-center container mx-auto">
           <div className="flex items-center space-x-6">
-            <Link href="/store" className="text-xl font-bold text-gray-800 hover:text-blue-500 transition duration-300">
+            <Link
+              href="/store"
+              className="text-xl font-bold text-gray-800 hover:text-blue-500 transition duration-300"
+            >
               Home
             </Link>
-            <Link href="#" className="text-lg text-gray-600 hover:text-blue-500 transition duration-300">
+            <Link
+              href="#"
+              className="text-lg text-gray-600 hover:text-blue-500 transition duration-300"
+            >
               About Us
             </Link>
           </div>
           <div className="flex items-center space-x-4">
-            <Link href="/cart" className="relative text-xl text-gray-800 hover:text-blue-500 transition duration-300">
+            <Link
+              href="/cart"
+              className="relative text-xl text-gray-800 hover:text-blue-500 transition duration-300"
+            >
               🛒 Cart
               {cart.length > 0 && (
-                <span className="absolute top-0 right-0 text-sm bg-red-500 text-white rounded-full px-2 py-1">{cart.length}</span>
+                <span className="absolute top-0 right-0 text-sm bg-red-500 text-white rounded-full px-2 py-1">
+                  {cart.length}
+                </span>
               )}
             </Link>
             <div className="relative">
@@ -85,13 +108,22 @@ export default function StorePage() {
               </button>
               {showDropdown && (
                 <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg p-4">
-                  <Link href="/library" className="block mb-2 text-sm text-gray-800 hover:text-blue-500">
+                  <Link
+                    href="/library"
+                    className="block mb-2 text-sm text-gray-800 hover:text-blue-500"
+                  >
                     My Library
                   </Link>
-                  <Link href="/previous-purchases" className="block mb-2 text-sm text-gray-800 hover:text-blue-500">
+                  <Link
+                    href="/previous-purchases"
+                    className="block mb-2 text-sm text-gray-800 hover:text-blue-500"
+                  >
                     Previous Purchases
                   </Link>
-                  <button className="w-full text-red-500 hover:text-red-700" onClick={handleLogout}>
+                  <button
+                    className="w-full text-red-500 hover:text-red-700"
+                    onClick={handleLogout}
+                  >
                     Logout
                   </button>
                 </div>
@@ -102,14 +134,25 @@ export default function StorePage() {
       </header>
 
       <section className="p-8">
-        <h1 className="text-4xl font-extrabold text-gray-900 mb-8 text-center">Store</h1>
+        <h1 className="text-4xl font-extrabold text-gray-900 mb-8 text-center">
+          Store
+        </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {games.map((game) => (
-            <div key={game.id} className="bg-white shadow-xl rounded-lg overflow-hidden transition-transform transform hover:scale-105">
-              <img src={game.imageUrl} alt={game.name} className="w-full h-64 object-cover rounded-t-lg" />
+            <div
+              key={game.id}
+              className="bg-white shadow-xl rounded-lg overflow-hidden transition-transform transform hover:scale-105"
+            >
+              <img
+                src={game.imageUrl}
+                alt={game.name}
+                className="w-full h-64 object-cover rounded-t-lg"
+              />
               <div className="p-4">
-                <h2 className="text-xl font-semibold text-gray-800 mb-2">{game.name}</h2>
+                <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                  {game.name}
+                </h2>
                 <p className="text-lg text-gray-600 mb-4">Price: ${game.price}</p>
                 <button
                   className="w-full bg-blue-600 text-white py-2 rounded-lg text-lg hover:bg-blue-700 transition duration-200"

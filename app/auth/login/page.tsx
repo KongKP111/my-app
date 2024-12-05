@@ -27,7 +27,7 @@ export default function LoginPage() {
         // Redirect based on role
         if (data.role === "admin") {
           console.log("Redirecting to Admin Page...");
-          router.push("/admin");
+          router.push("/develop");
         } else {
           router.push("/store");
         }

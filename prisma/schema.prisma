@@ -25,9 +25,6 @@ model Purchase {
   quantity Int
 }
 
-
-
-
 model Post {
   id        Int      @id @default(autoincrement())
   title     String
@@ -37,11 +34,13 @@ model Post {
 
 
 model Game {
-  id       Int    @id @default(autoincrement())
+  id       Int      @id @default(autoincrement())
   name     String
   price    Float
   imageUrl String
+  createdAt DateTime @default(now())
 }
+
 
 model CartItem {
   id     Int  @id @default(autoincrement())

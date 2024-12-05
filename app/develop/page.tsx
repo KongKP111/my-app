@@ -14,50 +14,67 @@ export default function DevelopPage() {
   const [newGame, setNewGame] = useState({ name: "", price: 0, imageUrl: "" });
   const [editingGame, setEditingGame] = useState<Game | null>(null);
 
+  // Fetch games on mount
   useEffect(() => {
     fetchGames();
   }, []);
 
   const fetchGames = async () => {
-    const res = await fetch("/api/games");
-    const data = await res.json();
-    setGames(data);
+    try {
+      const res = await fetch("/api/games");
+      if (res.ok) {
+        const data = await res.json();
+        setGames(data);
+      }
+    } catch (error) {
+      console.error("Error fetching games:", error);
+    }
   };
 
   const handleAdd = async () => {
-    const res = await fetch("/api/games/add", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newGame),
-    });
-
-    if (res.ok) {
-      fetchGames();
-      setNewGame({ name: "", price: 0, imageUrl: "" });
+    try {
+      const res = await fetch("/api/games", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newGame),
+      });
+      if (res.ok) {
+        fetchGames();
+        setNewGame({ name: "", price: 0, imageUrl: "" });
+      }
+    } catch (error) {
+      console.error("Error adding game:", error);
     }
   };
 
   const handleEdit = async () => {
     if (!editingGame) return;
-
-    const res = await fetch("/api/games/edit", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editingGame),
-    });
-
-    if (res.ok) {
-      fetchGames();
-      setEditingGame(null);
+    try {
+      const res = await fetch("/api/games", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editingGame),
+      });
+      if (res.ok) {
+        fetchGames();
+        setEditingGame(null);
+      }
+    } catch (error) {
+      console.error("Error editing game:", error);
     }
   };
 
   const handleDelete = async (id: number) => {
-    const res = await fetch(`/api/games/delete?id=${id}`, {
-      method: "DELETE",
-    });
-
-    if (res.ok) fetchGames();
+    try {
+      const res = await fetch(`/api/games?id=${id}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        fetchGames();
+      }
+    } catch (error) {
+      console.error("Error deleting game:", error);
+    }
   };
 
   return (
@@ -85,21 +102,7 @@ export default function DevelopPage() {
           value={newGame.imageUrl}
           onChange={(e) => setNewGame({ ...newGame, imageUrl: e.target.value })}
         />
-        <button onClick={handleAdd}>Add</button>
-      </div>
-
-      {/* Game List */}
-      <div>
-        <h2>Games</h2>
-        {games.map((game) => (
-          <div key={game.id}>
-            <h3>{game.name}</h3>
-            <p>{game.price}</p>
-            <img src={game.imageUrl} alt={game.name} />
-            <button onClick={() => setEditingGame(game)}>Edit</button>
-            <button onClick={() => handleDelete(game.id)}>Delete</button>
-          </div>
-        ))}
+        <button onClick={handleAdd}>Add Game</button>
       </div>
 
       {/* Edit Game */}
@@ -108,22 +111,46 @@ export default function DevelopPage() {
           <h2>Edit Game</h2>
           <input
             type="text"
+            placeholder="Game Name"
             value={editingGame.name}
-            onChange={(e) => setEditingGame({ ...editingGame, name: e.target.value })}
+            onChange={(e) =>
+              setEditingGame({ ...editingGame, name: e.target.value })
+            }
           />
           <input
             type="number"
+            placeholder="Price"
             value={editingGame.price}
-            onChange={(e) => setEditingGame({ ...editingGame, price: Number(e.target.value) })}
+            onChange={(e) =>
+              setEditingGame({ ...editingGame, price: Number(e.target.value) })
+            }
           />
           <input
             type="text"
+            placeholder="Image URL"
             value={editingGame.imageUrl}
-            onChange={(e) => setEditingGame({ ...editingGame, imageUrl: e.target.value })}
+            onChange={(e) =>
+              setEditingGame({ ...editingGame, imageUrl: e.target.value })
+            }
           />
-          <button onClick={handleEdit}>Save</button>
+          <button onClick={handleEdit}>Save Changes</button>
+          <button onClick={() => setEditingGame(null)}>Cancel</button>
         </div>
       )}
+
+      {/* Games List */}
+      <div>
+        <h2>Games List</h2>
+        {games.map((game) => (
+          <div key={game.id}>
+            <p>Name: {game.name}</p>
+            <p>Price: {game.price}</p>
+            <img src={game.imageUrl} alt={game.name} width={100} />
+            <button onClick={() => setEditingGame(game)}>Edit</button>
+            <button onClick={() => handleDelete(game.id)}>Delete</button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

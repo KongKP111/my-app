@@ -29,7 +29,7 @@
     },
     "target": "ES2017"
   },
-  "include": [".next/types/**/*.ts", "**/*.ts", "**/*.tsx"],
+  "include": [".next/types/**/*.ts", "**/*.ts", "**/*.tsx", "prisma/seed.cjs"],
   "exclude": [
     "node_modules"
   ]

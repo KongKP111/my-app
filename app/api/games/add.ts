@@ -14,11 +14,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Create a new game in the database
       const newGame = await prisma.game.create({
         data: {
-          gamename,  // Use 'gamename' instead of 'name'
+          gamename, // Use the correct field name
           price,
           imageUrl,
         },
       });
+      
+      
 
       // Send back the created game
       res.status(201).json(newGame);

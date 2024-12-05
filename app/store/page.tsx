@@ -18,11 +18,10 @@ export default function StorePage() {
 
   useEffect(() => {
     const fetchGames = async () => {
-      const res = await fetch("/api/posts");
-      const data = await res.json();
+      const res = await fetch("/api/games");
+      const data: Game[] = await res.json();
       setGames(data);
     };
-    
     fetchGames();
 
     const savedCart = JSON.parse(localStorage.getItem("cart") || "[]");
